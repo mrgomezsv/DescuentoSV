@@ -22,14 +22,19 @@ class MainActivity : AppCompatActivity() {
         val salary = editTextSalary.text.toString().toDoubleOrNull()
 
         if (salary != null) {
-            val afpPercentage = if (spinnerDays.selectedItem.toString() == "15") 0.05 else 0.075
-            val isssPercentage = if (spinnerDays.selectedItem.toString() == "15") 0.02 else 0.03
+            val selectedDaysText = spinnerDays.selectedItem.toString()
+            val selectedDays = when {
+                selectedDaysText.contains("15") -> 15
+                selectedDaysText.contains("30") -> 30
+                else -> 0 // Este caso no debería ocurrir ahora
+            }
+
+            val afpPercentage = if (selectedDays == 15) 0.05 else 0.075
+            val isssPercentage = if (selectedDays == 15) 0.02 else 0.03
 
             val afp = salary * afpPercentage
             val isss = salary * isssPercentage
             val totalDeductions = afp + isss
-
-            val selectedDays = spinnerDays.selectedItem.toString().toInt()
 
             val taxRate = 0.1
             val renta = if ((selectedDays == 15 || selectedDays == 30) && salary > 1000) salary * taxRate else 0.0

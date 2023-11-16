@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="days_array">
-        <item>15</item>
-        <item>30</item>
-        <item>Otro</item>
+        <item>15 días</item>
+        <item>30 días</item>
     </string-array>
 </resources>
