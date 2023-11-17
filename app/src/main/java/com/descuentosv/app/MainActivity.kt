@@ -8,6 +8,21 @@ import android.widget.Spinner
 import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val AFP_PERCENTAGE_15 = 0.05
+        const val AFP_PERCENTAGE_30 = 0.0725
+        const val ISSS_PERCENTAGE_15 = 0.02
+        const val ISSS_PERCENTAGE_30 = 0.03
+
+        val RENTA_TABLE = listOf(
+            RentaRange(0.01, 472.00, 0.0, 0.0, 0.0),
+            RentaRange(472.01, 895.24, 0.10, 17.67, 472.00),
+            RentaRange(895.25, 2038.10, 0.20, 60.00, 895.24),
+            RentaRange(2038.11, Double.MAX_VALUE, 0.30, 288.57, 2038.10)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,18 +41,17 @@ class MainActivity : AppCompatActivity() {
             val selectedDays = when {
                 selectedDaysText.contains("15") -> 15
                 selectedDaysText.contains("30") -> 30
-                else -> 0 // Este caso no debería ocurrir ahora
+                else -> 0
             }
 
-            val afpPercentage = if (selectedDays == 15) 0.05 else 0.075
-            val isssPercentage = if (selectedDays == 15) 0.02 else 0.03
+            val afpPercentage = if (selectedDays == 15) AFP_PERCENTAGE_15 else AFP_PERCENTAGE_30
+            val isssPercentage = if (selectedDays == 15) ISSS_PERCENTAGE_15 else ISSS_PERCENTAGE_30
 
             val afp = salary * afpPercentage
             val isss = salary * isssPercentage
             val totalDeductions = afp + isss
 
-            val taxRate = 0.1
-            val renta = if ((selectedDays == 15 || selectedDays == 30) && salary > 1000) salary * taxRate else 0.0
+            val renta = calculateRenta(salary, RENTA_TABLE)
 
             val netSalary = (salary / 30) * selectedDays - totalDeductions - renta
 
@@ -52,4 +66,20 @@ class MainActivity : AppCompatActivity() {
             textViewCash.text = ""
         }
     }
+
+    fun calculateRenta(salary: Double?, rentaTable: List<RentaRange>): Double {
+        if (salary == null) {
+            return 0.0
+        }
+
+        for (range in rentaTable) {
+            if (salary in range.start..range.end) {
+                return (salary - range.excess) * range.percent + range.fixedFee
+            }
+        }
+
+        return 0.0
+    }
+
+    data class RentaRange(val start: Double, val end: Double, val percent: Double, val fixedFee: Double, val excess: Double)
 }
